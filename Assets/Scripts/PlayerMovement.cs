@@ -3,14 +3,15 @@ using UnityEngine.InputSystem;
 
 public class PlayerMovement : MonoBehaviour
 {
-    //Variables
-    [SerializeField] private float speed = 0.6f;
-    [SerializeField] private float run_speed = 1.0f;
-    
-    //Obtener componentes
+    [SerializeField] private float speed = 1.8f;
+    [SerializeField] private float run_speed = 4.5f;
+
     private Rigidbody2D rb;
     private Vector2 moveInput;
+    private Vector2 lastMoveDir;
     private Animator animator;
+    private bool movementDisabled = false;
+    private bool isRunning = false;
 
     void Start()
     {
@@ -18,28 +19,65 @@ public class PlayerMovement : MonoBehaviour
         animator = GetComponent<Animator>();
     }
 
-
     void Update()
     {
-        rb.linearVelocity = moveInput * speed;
+        if (movementDisabled)
+        {
+            rb.linearVelocity = Vector2.zero;
+            return;
+        }
+
+        isRunning = Keyboard.current != null && Keyboard.current.upArrowKey.isPressed;
+        rb.linearVelocity = moveInput.normalized * (isRunning ? run_speed : speed);
+
+        bool isMoving = moveInput != Vector2.zero;
+        animator.SetBool("isWalking", isMoving);
+        animator.SetBool("isRunning", isMoving && isRunning);
     }
 
     public void Move(InputAction.CallbackContext context)
     {
-        animator.SetBool("isWalking", true);
-
-        if (context.canceled)
-        {
-            animator.SetBool("isWalking", false);
-            animator.SetBool("isRunning", false);
-            
-            animator.SetFloat("LastInputX", moveInput.x);
-            animator.SetFloat("LastInputY", moveInput.y);
-        }
-        
         moveInput = context.ReadValue<Vector2>();
 
         animator.SetFloat("InputX", moveInput.x);
         animator.SetFloat("InputY", moveInput.y);
+
+        if (moveInput != Vector2.zero)
+            lastMoveDir = moveInput;
+
+        if (context.canceled)
+        {
+            animator.SetFloat("LastInputX", lastMoveDir.x);
+            animator.SetFloat("LastInputY", lastMoveDir.y);
+        }
+    }
+
+    public void OnInteract(InputAction.CallbackContext context)
+    {
+        GameObject[] allObjects = FindObjectsByType<GameObject>(FindObjectsSortMode.None);
+        foreach (GameObject go in allObjects)
+        {
+            Interactable interactable = go.GetComponent<Interactable>();
+            if (interactable != null && interactable.CanInteract())
+            {
+                interactable.Interact();
+                return;
+            }
+        }
+
+        Debug.Log("No hay objeto interactuable disponible");
+    }
+
+    public void DisableMovement()
+    {
+        movementDisabled = true;
+        rb.linearVelocity = Vector2.zero;
+        animator.SetBool("isWalking", false);
+        animator.SetBool("isRunning", false);
+    }
+
+    public void EnableMovement()
+    {
+        movementDisabled = false;
     }
 }

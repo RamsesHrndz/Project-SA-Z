@@ -44,6 +44,9 @@ TagManager:
   - name: Ground
     uniqueID: 3909924955
     locked: 0
+  - name: Wall
+    uniqueID: 238467613
+    locked: 0
   - name: Collision
     uniqueID: 159063607
     locked: 0
