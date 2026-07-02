@@ -42,6 +42,7 @@ public class NoteScript : MonoBehaviour, Interactable
         if (NoteCanvas == null) return;
         NoteCanvas.SetActive(true);
         isNoteOpen = true;
+        Time.timeScale = 0f;
         if (playerMovement != null)
             playerMovement.DisableMovement();
     }
@@ -51,6 +52,7 @@ public class NoteScript : MonoBehaviour, Interactable
         if (NoteCanvas == null) return;
         NoteCanvas.SetActive(false);
         isNoteOpen = false;
+        Time.timeScale = 1f;
         if (playerMovement != null)
             playerMovement.EnableMovement();
     }

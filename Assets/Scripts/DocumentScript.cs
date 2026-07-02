@@ -42,6 +42,7 @@ public class DocumentScript : MonoBehaviour, Interactable
         if (DocumentCanvas == null) return;
         DocumentCanvas.SetActive(true);
         isDocumentOpen = true;
+        Time.timeScale = 0f;
         if (playerMovement != null)
             playerMovement.DisableMovement();
     }
@@ -51,6 +52,7 @@ public class DocumentScript : MonoBehaviour, Interactable
         if (DocumentCanvas == null) return;
         DocumentCanvas.SetActive(false);
         isDocumentOpen = false;
+        Time.timeScale = 1f;
         if (playerMovement != null)
             playerMovement.EnableMovement();
     }
